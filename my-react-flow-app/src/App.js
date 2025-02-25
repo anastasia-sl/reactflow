@@ -36,6 +36,8 @@ const initialEdges = [
 function Flow() {
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
+    const [showModal, setShowModal] = useState(false);
+    const [nodeName, setNodeName] = useState('');
 
     function onNodesChange(changes) {
         setNodes((nds) => applyNodeChanges(changes, nds));
@@ -49,17 +51,30 @@ function Flow() {
         setEdges((eds) => addEdge(params, eds));
     }
 
-    function addNode() {
+    const addNode = () => {
+        setShowModal(true);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
         const newNode = {
             id: (nodes.length + 1).toString(),
-            data: { label: `Вузол ${nodes.length + 1}` },
+            type: 'default',
+            data: { label: nodeName },
             position: {
                 x: Math.random() * 400 + 50,
                 y: Math.random() * 400 + 50,
             },
         };
         setNodes((nds) => nds.concat(newNode));
-    }
+        setShowModal(false);
+        setNodeName('');
+    };
+
+    const handleCancel = () => {
+        setShowModal(false);
+        setNodeName('');
+    };
 
     return (
         <div style={{ height: '100vh' }}>
@@ -75,6 +90,53 @@ function Flow() {
             >
                 Додати вузол
             </button>
+
+            {showModal && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        zIndex: 20,
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: 'white',
+                            padding: '20px',
+                            borderRadius: '5px',
+                            minWidth: '300px',
+                        }}
+                    >
+                        <h3>Введіть імʼя ноди</h3>
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                value={nodeName}
+                                onChange={(e) => setNodeName(e.target.value)}
+                                placeholder="Імʼя ноди"
+                                style={{ width: '100%', padding: '8px', marginTop: '10px' }}
+                                required
+                            />
+                            <div style={{ marginTop: '15px', textAlign: 'right' }}>
+                                <button type="submit" style={{ marginRight: '10px' }}>
+                                    Додати
+                                </button>
+                                <button type="button" onClick={handleCancel}>
+                                    Скасувати
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
