@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Handle, Position } from 'reactflow';
 import ReactFlow, {
     ReactFlowProvider,
     addEdge,
@@ -8,6 +9,50 @@ import ReactFlow, {
     applyEdgeChanges,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+
+const EditableNode = ({ data }) => {
+    const [editing, setEditing] = useState(false);
+    const [label, setLabel] = useState(data.label);
+
+    const onChange = (evt) => {
+        setLabel(evt.target.value);
+    };
+
+    const onBlur = () => {
+        setEditing(false);
+        data.label = label;
+    };
+
+    return (
+        <div
+            style={{
+                padding: '10px',
+                background: '#fff',
+                textAlign: 'center',
+            }}
+        >
+            {editing ? (
+                <input
+                    value={label}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    autoFocus
+                    className="nodrag"
+                    style={{ width: '100%' }}
+                />
+            ) : (
+                <div onDoubleClick={() => setEditing(true)}>{label}</div>
+            )}
+            <Handle type="target" position={Position.Left} style={{ background: '#555' }} />
+            <Handle type="source" position={Position.Right} style={{ background: '#555' }} />
+        </div>
+    );
+};
+
+const nodeTypes = {
+    default: EditableNode,
+    input: EditableNode,
+};
 
 const initialNodes = [
     {
@@ -38,6 +83,8 @@ function Flow() {
     const [edges, setEdges] = useState(initialEdges);
     const [showModal, setShowModal] = useState(false);
     const [nodeName, setNodeName] = useState('');
+    const [inputCount, setInputCount] = useState(1);
+    const [outputCount, setOutputCount] = useState(1);
 
     function onNodesChange(changes) {
         setNodes((nds) => applyNodeChanges(changes, nds));
@@ -60,7 +107,7 @@ function Flow() {
         const newNode = {
             id: (nodes.length + 1).toString(),
             type: 'default',
-            data: { label: nodeName },
+            data: { label: nodeName, inputs: Number(inputCount), outputs: Number(outputCount) },
             position: {
                 x: Math.random() * 400 + 50,
                 y: Math.random() * 400 + 50,
@@ -69,6 +116,8 @@ function Flow() {
         setNodes((nds) => nds.concat(newNode));
         setShowModal(false);
         setNodeName('');
+        setInputCount(1);
+        setOutputCount(1);
     };
 
     const handleCancel = () => {
@@ -116,14 +165,39 @@ function Flow() {
                     >
                         <h3>Введіть імʼя ноди</h3>
                         <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                value={nodeName}
-                                onChange={(e) => setNodeName(e.target.value)}
-                                placeholder="Імʼя ноди"
-                                style={{ width: '100%', padding: '8px', marginTop: '10px' }}
-                                required
-                            />
+                            <div style={{ marginBottom: '10px' }}>
+                                <input
+                                    type="text"
+                                    value={nodeName}
+                                    onChange={(e) => setNodeName(e.target.value)}
+                                    placeholder="Імʼя ноди"
+                                    style={{ width: '100%', padding: '8px', marginTop: '10px' }}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '10px' }}>
+                                <label>Кількість input:</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={inputCount}
+                                    onChange={(e) => setInputCount(e.target.value)}
+                                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                                    required
+                                />
+                            </div>
+                            <div style={{ marginBottom: '10px' }}>
+                                <label>Кількість output:</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={outputCount}
+                                    onChange={(e) => setOutputCount(e.target.value)}
+                                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                                    required
+                                />
+                            </div>
                             <div style={{ marginTop: '15px', textAlign: 'right' }}>
                                 <button type="submit" style={{ marginRight: '10px' }}>
                                     Додати
@@ -144,6 +218,7 @@ function Flow() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 fitView
+                nodeTypes={nodeTypes}
             >
                 <Background color="#aaa" gap={16} />
                 <Controls />
