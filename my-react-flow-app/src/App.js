@@ -78,6 +78,14 @@ const initialEdges = [
     { id: 'e1-3', source: '1', target: '3' },
 ];
 
+const nodeTemplates = [
+    {label: 'Start', data: { label: 'START' }, style: { color: '#333' }},
+    {label: 'If', data: { label: 'IF' }, style: { color: '#333' }},
+    {label: 'Assign', data: { label: 'ASSIGN' }, style: { color: '#333' }},
+    {label: 'Log', data: { label: 'LOG' }, style: { color: '#333' }},
+    {label: 'End', data: { label: 'END' }, style: { color: '#333' }}
+]
+
 function Flow() {
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
@@ -85,6 +93,7 @@ function Flow() {
     const [nodeName, setNodeName] = useState('');
     const [inputCount, setInputCount] = useState(1);
     const [outputCount, setOutputCount] = useState(1);
+    const [selectedNode, setSelectedNode] = useState(null);
 
     function onNodesChange(changes) {
         setNodes((nds) => applyNodeChanges(changes, nds));
@@ -101,6 +110,23 @@ function Flow() {
     const addNode = () => {
         setShowModal(true);
     };
+
+    const onSelectionChange = (selection) => {
+        const selNodes = selection.nodes;
+        const selEdges = selection.edges;
+        setSelectedNode(selNodes.length === 1 ? selNodes[0] : null);
+    };
+
+    const addNodeFromTemplate = (template) => {
+        const newNode = {
+            id: (nodes.length + 1).toString(),
+            type: 'default',
+            data: {...template.data},
+            position: { x: 250, y: 150 },
+            style: template.style,
+        }
+        setNodes((nds) => [...nds, newNode]);
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -125,20 +151,78 @@ function Flow() {
         setNodeName('');
     };
 
+    const handleLabelChange = (e) => {
+        if(!selectedNode) return;
+        const newLabel = e.target.value;
+        setNodes((nds) =>
+            nds.map((node) =>
+                node.id === selectedNode.id
+                    ? { ...node, data: { ...node.data, label: newLabel } }
+                    : node
+            )
+        );
+        setSelectedNode((prev) =>
+            prev ? { ...prev, data: { ...prev.data, label: newLabel } } : null
+        );
+    };
+
     return (
-        <div style={{ height: '100vh' }}>
-            <button
-                onClick={addNode}
-                style={{
-                    position: 'absolute',
-                    zIndex: 10,
-                    top: 10,
-                    left: 10,
-                    padding: '8px 12px',
-                }}
-            >
-                Додати вузол
-            </button>
+        <div style={{ width: '100%', height: '100vh', display: 'flex' }}>
+            <div style={{ width: 150, borderRight: '1px solid #ccc', padding: 10 }}>
+                <h4>Tools</h4>
+                {nodeTemplates.map((tmpl, idx) => (
+                    <button
+                        key={idx}
+                        style={{ display: 'block', marginBottom: 5, width: '100%' }}
+                        onClick={() => addNodeFromTemplate(tmpl)}
+                    >
+                        {tmpl.label}
+                    </button>
+                ))}
+                <button style={{ marginTop: 20, width: '100%' }} onClick={addNode}>
+                    Add Node (Modal)
+                </button>
+                <button
+                    style={{ marginTop: 20, width: '100%' }}
+                    onClick={() => alert("Code")}
+                >
+                    Generate Code
+                </button>
+            </div>
+
+            <div style={{ flexGrow: 1, position: 'relative' }}>
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onConnect={onConnect}
+                    onSelectionChange={onSelectionChange}
+                    fitView
+                    nodeTypes={nodeTypes}
+                >
+                    <Background color="#aaa" gap={16} />
+                    <Controls />
+                </ReactFlow>
+            </div>
+
+            <div style={{ width: 200, borderLeft: '1px solid #ccc', padding: 10 }}>
+                <h4>Property Panel</h4>
+                {selectedNode ? (
+                    <div>
+                        <label style={{ display: 'block', marginBottom: 5 }}>
+                            Label:
+                            <input
+                                style={{ width: '100%' }}
+                                value={selectedNode.data.label}
+                                onChange={handleLabelChange}
+                            />
+                        </label>
+                    </div>
+                ) : (
+                    <div>No node selected</div>
+                )}
+            </div>
 
             {showModal && (
                 <div
@@ -175,7 +259,6 @@ function Flow() {
                                     required
                                 />
                             </div>
-
                             <div style={{ marginBottom: '10px' }}>
                                 <label>Кількість input:</label>
                                 <input
@@ -210,19 +293,6 @@ function Flow() {
                     </div>
                 </div>
             )}
-
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                fitView
-                nodeTypes={nodeTypes}
-            >
-                <Background color="#aaa" gap={16} />
-                <Controls />
-            </ReactFlow>
         </div>
     );
 }
