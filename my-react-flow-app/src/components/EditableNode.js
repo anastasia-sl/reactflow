@@ -40,4 +40,4 @@ const EditableNode = ({data}) => {
   );
 };
 
-// export EditableNode...
+export default EditableNode;

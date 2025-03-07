@@ -8,8 +8,7 @@ import ReactFlow, {
   ReactFlowProvider
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-
-// was here
+import EditableNode from "./components/EditableNode";
 
 // TODO: useMemo
 const nodeTypes = {
