@@ -1,0 +1,19 @@
+.sidebar {
+    width: 150px;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+}
+
+.sidebar h4 {
+    margin-bottom: 10px;
+}
+
+.sidebar-btn {
+    display: block;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.add-node-btn {
+    margin-top: 20px;
+}
