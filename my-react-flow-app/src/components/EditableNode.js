@@ -6,6 +6,10 @@ function EditableNode({data}) {
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(data.label);
 
+  React.useEffect(() => {
+    setLabel(data.label || '');
+  }, [data.label]);
+
   const onChange = (evt) => {
     setLabel(evt.target.value);
   };
@@ -14,6 +18,9 @@ function EditableNode({data}) {
     setEditing(false);
     data.label = label;
   };
+
+  const inputsCount = data.inputs || 1;
+  const outputsCount = data.outputs || 1;
 
   return (
     <div className="editableNode">
@@ -34,16 +41,41 @@ function EditableNode({data}) {
         </div>
       )}
 
-      <Handle
-        type="target"
-        position={Position.Left}
-        style={{background: '#555'}}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{background: '#555'}}
-      />
+      {Array.from({length: inputsCount}).map((_, i) => {
+        const spacing = 100 / (inputsCount + 1);
+        const topPercent = spacing * (i + 1);
+
+        return (
+          <Handle
+            key={`in-${i}`}
+            type="target"
+            position={Position.Left}
+            style={{
+              top: `${topPercent}%`,
+              transform: 'translateY(-50%)',
+              background: '#555',
+            }}
+          />
+        );
+      })}
+
+      {Array.from({length: outputsCount}).map((_, i) => {
+        const spacing = 100 / (outputsCount + 1);
+        const topPercent = spacing * (i + 1);
+
+        return (
+          <Handle
+            key={`out-${i}`}
+            type="source"
+            position={Position.Right}
+            style={{
+              top: `${topPercent}%`,
+              transform: 'translateY(-50%)',
+              background: '#555',
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

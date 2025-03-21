@@ -74,6 +74,23 @@ function FlowCanvas() {
     setSelectedNode(selNodes.length === 1 ? selNodes[0] : null);
   }, []);
 
+  const handleLabelChange = useCallback((e) => {
+    if (!selectedNode) return;
+    const newLabel = e.target.value;
+
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === selectedNode.id
+          ? {...node, data: {...node.data, label: newLabel}}
+          : node
+      )
+    );
+
+    setSelectedNode((prev) =>
+      prev ? {...prev, data: {...prev.data, label: newLabel}} : null
+    );
+  }, [selectedNode]);
+
   const addNode = useCallback(() => {
     setShowModal(true);
   }, []);
@@ -88,22 +105,6 @@ function FlowCanvas() {
     };
     setNodes((nds) => [...nds, newNode]);
   }, []);
-
-  const handleLabelChange = useCallback((e) => {
-    if (!selectedNode) return;
-    const newLabel = e.target.value;
-
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === selectedNode.id
-          ? {...node, data: {...node.data, label: newLabel}}
-          : node
-      )
-    );
-    setSelectedNode((prev) =>
-      prev ? {...prev, data: {...prev.data, label: newLabel}} : null
-    );
-  }, [selectedNode]);
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
