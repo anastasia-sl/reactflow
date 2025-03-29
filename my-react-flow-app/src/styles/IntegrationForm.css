@@ -1,0 +1,13 @@
+.integrationForm {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.formGroup {
+  margin-bottom: 10px;
+}
+
+.errorText {
+  color: red;
+  margin-bottom: 10px;
+}

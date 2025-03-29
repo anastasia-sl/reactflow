@@ -1,5 +1,7 @@
 import React from 'react';
 import '../styles/Sidebar.css';
+import {IntegrationForm} from "../features/integration/ui/IntegrationForm";
+
 
 function Sidebar({nodeTemplates, addNodeFromTemplate, addNode}) {
   return (
@@ -28,6 +30,8 @@ function Sidebar({nodeTemplates, addNodeFromTemplate, addNode}) {
       >
         Generate Code
       </button>
+
+      <IntegrationForm/>
     </div>
   );
 }
